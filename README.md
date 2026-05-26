@@ -105,3 +105,23 @@ If you encounter any issues or have questions, please:
 ---
 
 Made with ❤️ by Pax
+
+---
+
+# Notes for Josh
+
+Rebuild and install to `~/Applications`:
+
+```bash
+make local INSTALL_DIR=~/Applications
+```
+
+Or set it once in your shell:
+
+```bash
+export INSTALL_DIR=~/Applications
+make local
+```
+
+Then open Spotlight (`ctrl+space`) and launch `VoiceInk`. After a rebuild, quit any running instance first (the menu bar → Quit) so the new binary takes over the hotkey.
+

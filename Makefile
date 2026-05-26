@@ -1,5 +1,10 @@
 # Define a directory for dependencies in the user's home folder
 DEPS_DIR := $(HOME)/VoiceInk-Dependencies
+# Install destination — override with `make local INSTALL_DIR=...` or `export INSTALL_DIR=...`
+INSTALL_DIR ?= $(HOME)/Downloads
+# Expand leading ~ to $HOME (Make doesn't do tilde expansion natively).
+# `override` is required so this also applies to values passed on the command line.
+override INSTALL_DIR := $(patsubst ~%,$(HOME)%,$(INSTALL_DIR))
 WHISPER_CPP_DIR := $(DEPS_DIR)/whisper.cpp
 FRAMEWORK_PATH := $(WHISPER_CPP_DIR)/build-apple/whisper.xcframework
 LOCAL_DERIVED_DATA := $(CURDIR)/.local-build
@@ -60,13 +65,14 @@ local: check setup
 		build
 	@APP_PATH="$(LOCAL_DERIVED_DATA)/Build/Products/Debug/VoiceInk.app" && \
 	if [ -d "$$APP_PATH" ]; then \
-		echo "Copying VoiceInk.app to ~/Downloads..."; \
-		rm -rf "$$HOME/Downloads/VoiceInk.app"; \
-		ditto "$$APP_PATH" "$$HOME/Downloads/VoiceInk.app"; \
-		xattr -cr "$$HOME/Downloads/VoiceInk.app"; \
+		echo "Copying VoiceInk.app to $(INSTALL_DIR)..."; \
+		mkdir -p "$(INSTALL_DIR)"; \
+		rm -rf "$(INSTALL_DIR)/VoiceInk.app"; \
+		ditto "$$APP_PATH" "$(INSTALL_DIR)/VoiceInk.app"; \
+		xattr -cr "$(INSTALL_DIR)/VoiceInk.app"; \
 		echo ""; \
-		echo "Build complete! App saved to: ~/Downloads/VoiceInk.app"; \
-		echo "Run with: open ~/Downloads/VoiceInk.app"; \
+		echo "Build complete! App saved to: $(INSTALL_DIR)/VoiceInk.app"; \
+		echo "Run with: open $(INSTALL_DIR)/VoiceInk.app"; \
 		echo ""; \
 		echo "Limitations of local builds:"; \
 		echo "  - No iCloud dictionary sync"; \
@@ -78,9 +84,9 @@ local: check setup
 
 # Run application
 run:
-	@if [ -d "$$HOME/Downloads/VoiceInk.app" ]; then \
-		echo "Opening ~/Downloads/VoiceInk.app..."; \
-		open "$$HOME/Downloads/VoiceInk.app"; \
+	@if [ -d "$(INSTALL_DIR)/VoiceInk.app" ]; then \
+		echo "Opening $(INSTALL_DIR)/VoiceInk.app..."; \
+		open "$(INSTALL_DIR)/VoiceInk.app"; \
 	else \
 		echo "Looking for VoiceInk.app in DerivedData..."; \
 		APP_PATH=$$(find "$$HOME/Library/Developer/Xcode/DerivedData" -name "VoiceInk.app" -type d | head -1) && \
